@@ -9,24 +9,31 @@ import SwiftUI
 import SwiftData
 
 @main
-struct TImeCapsApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+struct TimeCapsApp: App {
+    let modelContainer: ModelContainer
+    let cloudKitManager: CloudKitSyncManager
+    
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let schema = Schema([TimeCapsule.self, CapsuleItem.self])
+            let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+            modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            cloudKitManager = CloudKitSyncManager(containerIdentifier: "iCloud.com.ash.TimeCaps")
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Failed to initialize model container: \(error)")
         }
-    }()
-
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    Task {
+                        _ = await cloudKitManager.requestPermissions()
+                    }
+                }
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(modelContainer)
     }
 }
+
