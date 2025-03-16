@@ -18,7 +18,6 @@ struct TimeCapsApp: App {
             let schema = Schema([TimeCapsule.self, CapsuleItem.self])
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
             modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            cloudKitManager = CloudKitSyncManager(containerIdentifier: "iCloud.com.ash.TimeCaps")
         } catch {
             fatalError("Failed to initialize model container: \(error)")
         }
@@ -28,21 +27,11 @@ struct TimeCapsApp: App {
         #if os(macOS)
         Window("TimeCap", id: "Main") {
             ContentView()
-                .onAppear {
-                    Task {
-                        _ = await cloudKitManager.requestPermissions()
-                    }
-                }
         }
         .modelContainer(modelContainer)
         #else
         WindowGroup {
             ContentView()
-                .onAppear {
-                    Task {
-                        _ = await cloudKitManager.requestPermissions()
-                    }
-                }
         }
         .modelContainer(modelContainer)
         #endif

@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		5E9BE2902D85D6D3006B19EE /* Exceptions for "TImeCaps" folder in "TimeCaps" target */ = {
+		5E9BE2902D85D6D3006B19EE /* Exceptions for "TimeCaps" folder in "TimeCaps" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -40,12 +40,12 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		5E9BE26C2D85D6D2006B19EE /* TImeCaps */ = {
+		5E9BE26C2D85D6D2006B19EE /* TimeCaps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5E9BE2902D85D6D3006B19EE /* Exceptions for "TImeCaps" folder in "TimeCaps" target */,
+				5E9BE2902D85D6D3006B19EE /* Exceptions for "TimeCaps" folder in "TimeCaps" target */,
 			);
-			path = TImeCaps;
+			path = TimeCaps;
 			sourceTree = "<group>";
 		};
 		5E9BE2812D85D6D3006B19EE /* TImeCapsTests */ = {
@@ -88,7 +88,7 @@
 		5E9BE2612D85D6D2006B19EE = {
 			isa = PBXGroup;
 			children = (
-				5E9BE26C2D85D6D2006B19EE /* TImeCaps */,
+				5E9BE26C2D85D6D2006B19EE /* TimeCaps */,
 				5E9BE2812D85D6D3006B19EE /* TImeCapsTests */,
 				5E9BE28B2D85D6D3006B19EE /* TImeCapsUITests */,
 				5E9BE26B2D85D6D2006B19EE /* Products */,
@@ -121,7 +121,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5E9BE26C2D85D6D2006B19EE /* TImeCaps */,
+				5E9BE26C2D85D6D2006B19EE /* TimeCaps */,
 			);
 			name = TimeCaps;
 			packageProductDependencies = (
@@ -315,10 +315,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = ash.TimeCaps;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = ash.TimeCaps.iOS;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = ash.TimeCaps.macOS;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=xros*]" = ash.TimeCaps.visionOS;
+				PRODUCT_BUNDLE_IDENTIFIER = ash.TimeCaps.Prod;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -362,10 +359,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = ash.TimeCaps;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = ash.TimeCaps.iOS;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = ash.TimeCaps.macOS;
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=xros*]" = ash.TimeCaps.visionOS;
+				PRODUCT_BUNDLE_IDENTIFIER = ash.TimeCaps.Prod;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
