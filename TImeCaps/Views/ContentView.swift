@@ -93,7 +93,7 @@ struct ContentView: View {
                 }
             }
 #if os(macOS)
-            .frame(minWidth: 450, minHeight: 500)
+            .frame(minWidth: 450, maxWidth: .infinity, minHeight: 500)
             .background(
                 VisualEffectView(
                     material: .menu,
@@ -109,7 +109,7 @@ struct ContentView: View {
                     window.titlebarAppearsTransparent = true
                     window.isOpaque = false
                     window.backgroundColor = .clear // Set the background color to clear
-                    
+                    window.tabbingMode = .disallowed
                     window.styleMask.insert(.fullSizeContentView)
                 }
 #endif

@@ -25,6 +25,17 @@ struct TimeCapsApp: App {
     }
     
     var body: some Scene {
+        #if os(macOS)
+        Window("TimeCap", id: "Main") {
+            ContentView()
+                .onAppear {
+                    Task {
+                        _ = await cloudKitManager.requestPermissions()
+                    }
+                }
+        }
+        .modelContainer(modelContainer)
+        #else
         WindowGroup {
             ContentView()
                 .onAppear {
@@ -34,6 +45,7 @@ struct TimeCapsApp: App {
                 }
         }
         .modelContainer(modelContainer)
+        #endif
     }
 }
 
