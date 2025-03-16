@@ -11,7 +11,6 @@ import SwiftData
 @main
 struct TimeCapsApp: App {
     let modelContainer: ModelContainer
-    let cloudKitManager: CloudKitSyncManager
     
     init() {
         do {
