@@ -18,22 +18,23 @@ struct CapsuleRowView: View {
                     .font(.headline)
                 Text(capsule.canOpen ? "Available to open" : capsule.timeRemaining)
                     .font(.subheadline)
-                    .foregroundColor(capsule.canOpen ? .green : .gray)
+                    .foregroundStyle(capsule.canOpen ? Color.accentColor : .secondary)
             }
             
             Spacer()
             
             if capsule.isOpened {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
+                    .foregroundStyle(.blue)
             } else if capsule.canOpen {
                 Image(systemName: "lock.open.fill")
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(Color.accentColor)
             } else {
                 Image(systemName: "lock.fill")
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 8)
+        .contentShape(Rectangle())
     }
 }

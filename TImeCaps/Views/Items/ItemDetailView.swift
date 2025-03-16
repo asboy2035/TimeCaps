@@ -15,98 +15,115 @@ struct ItemDetailView: View {
     @State private var audioPlayer: AVAudioPlayer?
     
     var body: some View {
-        NavigationStack {
-            VStack {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(item.title)
+                    .font(.title)
+                
                 switch item.type {
-                case .photo:
-                    if let imageData = item.imageData {
-                        #if os(iOS)
-                        if let uiImage = UIImage(data: imageData) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                        } else {
-                            Text("Unable to load image")
-                                .foregroundColor(.secondary)
-                        }
-                        #elseif os(macOS)
-                        if let nsImage = NSImage(data: imageData) {
-                            Image(nsImage: nsImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                        } else {
-                            Text("Unable to load image")
-                                .foregroundColor(.secondary)
-                        }
-                        #endif
-                    } else {
-                        Text("Unable to load image")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                case .text:
-                    if let text = item.text {
-                        ScrollView {
-                            Text(text)
-                                .padding()
-                        }
-                    } else {
-                        Text("No text content")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                case .audio:
-                    VStack {
-                        Image(systemName: "waveform")
-                            .font(.system(size: 80))
-                            .foregroundColor(.accentColor)
-                            .padding()
-                        
-                        Button {
-                            if isPlaying {
-                                stopAudio()
-                            } else {
-                                playAudio()
-                            }
-                        } label: {
-                            Text(isPlaying ? "Stop" : "Play")
-                                .font(.headline)
-                                .padding()
-                                .frame(width: 120)
-                                .background(isPlaying ? Color.red : Color.accentColor)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding()
-                    .onAppear {
-                        setupAudioPlayer()
-                    }
-                    .onDisappear {
-                        stopAudio()
-                    }
-                    
+                case .photo: photoView
+                case .text: textView
+                case .audio: audioView
                 case .music:
                     Text("Music playback not implemented yet")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
+                Spacer()
+                
+                Button(action: {
+                    dismiss()
+                }) {
+                    Label("Done", systemImage: "checkmark")
+                }
+                .keyboardShortcut(.defaultAction)
+                .buttonStyle(.borderless)
             }
-            .navigationTitle(item.title)
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+            .padding()
+#if os(visionOS)
+            .padding()
 #endif
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button("Done") {
-                        dismiss()
-                    }
+            Spacer()
+        }
+#if os(macOS)
+        .frame(minWidth: 350)
+#endif
+    }
+    
+    // -MARK: Preview types
+    var photoView: some View {
+        VStack {
+            if let imageData = item.imageData {
+#if os(iOS) || os(visionOS)
+                if let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(16)
+                } else {
+                    Text("Unable to load image")
+                        .foregroundStyle(.secondary)
                 }
+#elseif os(macOS)
+                if let nsImage = NSImage(data: imageData) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .cornerRadius(16)
+                } else {
+                    Text("Unable to load image")
+                        .foregroundStyle(.secondary)
+                }
+#endif
+            } else {
+                Text("Unable to load image")
+                    .foregroundStyle(.secondary)
             }
         }
     }
     
+    var textView: some View {
+        VStack {
+            if let text = item.text {
+                ScrollView {
+                    Text(text)
+                }
+            } else {
+                Text("No text content")
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    var audioView: some View {
+        VStack(alignment: .leading) {
+            Image(systemName: "waveform")
+                .font(.system(size: 80))
+                .foregroundStyle(Color.accentColor)
+                .padding()
+            
+            Button {
+                if isPlaying {
+                    stopAudio()
+                } else {
+                    playAudio()
+                }
+            } label: {
+                Label(
+                    isPlaying ? "Stop" : "Play",
+                    systemImage: isPlaying ? "square" : "play"
+                )
+            }
+        }
+        .padding()
+        .onAppear {
+            setupAudioPlayer()
+        }
+        .onDisappear {
+            stopAudio()
+        }
+    }
+    
+    // -MARK: Funcs
     private func setupAudioPlayer() {
         guard let audioData = item.audioData else { return }
         

@@ -21,75 +21,48 @@ struct AddItemView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("Item Type")) {
-                    Picker("Type", selection: $selectedType) {
-                        Text("Photo").tag(CapsuleItem.ItemType.photo)
-                        Text("Text").tag(CapsuleItem.ItemType.text)
-                        Text("Audio Recording").tag(CapsuleItem.ItemType.audio)
-                        Text("Music").tag(CapsuleItem.ItemType.music)
-                    }
-                    .pickerStyle(.segmented)
-                }
+            VStack(alignment: .leading) {
+                TextField("Title", text: $title)
+                    .textFieldStyle(.plain)
+                    .font(.title)
+                typePicker
                 
-                Section(header: Text("Details")) {
-                    TextField("Title", text: $title)
-                    
+                VStack {
                     switch selectedType {
-                    case .photo:
-                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                            Label("Select Photo", systemImage: "photo")
-                        }
-                        
-                        if let selectedPhotoItem {
-                            Text("Photo selected: \(selectedPhotoItem.itemIdentifier ?? "Unknown")")
-                                .font(.caption)
-                        }
-                        
-                    case .text:
-                        TextField("Your message", text: $text, axis: .vertical)
-                            .lineLimit(5)
-                        
-                    case .audio:
-                        Button {
-                            if isRecording {
-                                stopRecording()
-                            } else {
-                                startRecording()
-                            }
-                        } label: {
-                            Label(isRecording ? "Stop Recording" : "Start Recording",
-                                  systemImage: isRecording ? "stop.circle" : "mic.circle")
-                        }
-                        .tint(isRecording ? .red : .accentColor)
-                        
-                        if selectedAudioURL != nil {
-                            Text("Recording saved")
-                                .font(.caption)
-                        }
-                        
-                    case .music:
-                        Text("Music selection will be implemented in a future update")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    case .photo: photoPicker
+                    case .text: textField
+                    case .audio: audioInput
+                    case .music: Text("not implemented")
                     }
                 }
-            }
-            .navigationTitle("Add Item")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button("Add") {
+                .padding(.bottom)
+                Spacer()
+                
+                HStack {
+                    Button(action: {
                         addItem()
+                    }) {
+                        Label("Add", systemImage: "plus")
+                            .foregroundStyle(
+                                title.isEmpty || !canAddItem() ?
+                                .secondary : Color.accentColor
+                            )
                     }
                     .disabled(title.isEmpty || !canAddItem())
-                }
-                
-                ToolbarItem(placement: .navigation) {
-                    Button("Cancel") {
+                    Spacer()
+                    
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
+                .buttonStyle(.borderless)
             }
+            .padding()
+#if os(visionOS)
+            .padding()
+#endif
             .onDisappear {
                 if isRecording {
                     stopRecording()
@@ -97,7 +70,75 @@ struct AddItemView: View {
             }
         }
     }
-
+    
+    // -MARK: Type picker
+    var typePicker: some View {
+        HStack {
+            Picker("Type", selection: $selectedType) {
+                GradientLabel(
+                    title: "Photo",
+                    systemImage: "photo.on.rectangle.angled.fill"
+                )
+                .tag(CapsuleItem.ItemType.photo)
+                
+                GradientLabel(
+                    title: "Text",
+                    systemImage: "text.document"
+                )
+                .tag(CapsuleItem.ItemType.text)
+                
+                GradientLabel(
+                    title: "Audio",
+                    systemImage: "waveform"
+                )
+                .tag(CapsuleItem.ItemType.audio)
+            }
+            Spacer()
+        }
+    }
+    
+    // -MARK: Input types
+    var photoPicker: some View {
+        HStack {
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                Label("Select Photo", systemImage: "photo")
+            }
+            
+            if let selectedPhotoItem {
+                Text("Photo selected: \(selectedPhotoItem.itemIdentifier ?? "Unknown")")
+                    .font(.caption)
+            }
+        }
+    }
+    
+    var textField: some View {
+        TextField("Your message", text: $text, axis: .vertical)
+            .textFieldStyle(.plain)
+            .lineLimit(5)
+    }
+    
+    var audioInput: some View {
+        VStack {
+            Button {
+                if isRecording {
+                    stopRecording()
+                } else {
+                    startRecording()
+                }
+            } label: {
+                Label(isRecording ? "Stop Recording" : "Start Recording",
+                      systemImage: isRecording ? "stop.circle" : "mic.circle")
+            }
+            .tint(isRecording ? .red : .accentColor)
+            
+            if selectedAudioURL != nil {
+                Text("Recording saved")
+                    .font(.caption)
+            }
+        }
+    }
+    
+    // -MARK: Funcs
     private func canAddItem() -> Bool {
         switch selectedType {
         case .photo:
@@ -142,7 +183,7 @@ struct AddItemView: View {
     }
 
     private func startRecording() {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.playAndRecord, mode: .default)
@@ -155,7 +196,7 @@ struct AddItemView: View {
 
         // Determine file storage path for each platform
         let documentPath: URL
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         #elseif os(macOS)
         documentPath = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
@@ -185,7 +226,7 @@ struct AddItemView: View {
         isRecording = false
         selectedAudioURL = audioRecorder?.url
         
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         do {
             try AVAudioSession.sharedInstance().setActive(false)
         } catch {

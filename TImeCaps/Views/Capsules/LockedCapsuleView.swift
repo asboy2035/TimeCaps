@@ -15,7 +15,7 @@ struct LockedCapsuleView: View {
         VStack(spacing: 20) {
             Image(systemName: "lock.fill")
                 .font(.system(size: 70))
-                .foregroundColor(.gray)
+                .foregroundStyle(.gray)
             
             Text("Cap Locked")
                 .font(.title)
@@ -25,7 +25,7 @@ struct LockedCapsuleView: View {
                 .font(.headline)
             
             Text("This capsule will open on:")
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             
             Text(formattedDate(capsule.openDate))
                 .font(.title3)

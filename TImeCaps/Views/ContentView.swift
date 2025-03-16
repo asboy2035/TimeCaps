@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 enum CurrentPlatform: String {
-    case iOS, macOS, watchOS, tvOS
+    case iOS, macOS, watchOS, tvOS, visionOS
 }
 
 struct ContentView: View {
@@ -23,6 +23,9 @@ struct ContentView: View {
 #endif
 #if os(iOS)
     let currentPlatform: CurrentPlatform = .iOS
+#endif
+#if os(visionOS)
+    let currentPlatform: CurrentPlatform = .visionOS
 #endif
 
     var body: some View {
@@ -58,16 +61,35 @@ struct ContentView: View {
                     }
                     .padding(.vertical)
                 } else {
-                    List {
-                        ForEach(capsules) { capsule in
-                            CapsuleRowView(capsule: capsule, currentTime: currentTime)
-                                .onTapGesture {
-                                    selectedCapsule = capsule
-                                }
+                    VStack(spacing: 0) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            StatCard(
+                                title: "Caps",
+                                value: capsules.count,
+                                systemImage: "capsule.lefthalf.filled",
+                                iconColor: Color.accentColor
+                            )
                         }
-                        .onDelete(perform: deleteCapsules)
+                        .padding(.horizontal, 18)
+#if os(visionOS)
+                        .padding(.horizontal, 6)
+                        .padding(.bottom)
+#endif
+                    
+                        List {
+                            ForEach(capsules) { capsule in
+                                CapsuleRowView(capsule: capsule, currentTime: currentTime)
+                                    .onTapGesture {
+                                        selectedCapsule = capsule
+                                    }
+                            }
+                            .onDelete(perform: deleteCapsules)
+                        }
+#if os(iOS)
+                        .cornerRadius(12)
+#endif
+                        .scrollContentBackground(.hidden)
                     }
-                    .scrollContentBackground(.hidden)
                 }
             }
 #if os(macOS)
@@ -92,14 +114,15 @@ struct ContentView: View {
                 }
 #endif
             }
-            .navigationTitle("TimeCaps")
+            .navigationTitle("My Caps")
             .toolbar {
                 ToolbarItem(placement: .automatic) {
                     Button {
                         showingNewCapsuleSheet = true
                     } label: {
-                        Image(systemName: "plus")
+                        Label("New Cap", systemImage: "plus")
                     }
+                    .keyboardShortcut("n")
                 }
             }
             .sheet(isPresented: $showingNewCapsuleSheet) {

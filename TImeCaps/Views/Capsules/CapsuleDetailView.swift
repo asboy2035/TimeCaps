@@ -17,69 +17,62 @@ struct CapsuleDetailView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(capsule.title)
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
+                                .font(.title)
                             
                             Text("Created on \(formattedDate(capsule.creationDate))")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                         
                         Spacer()
                         
                         Image(systemName: "hourglass.bottomhalf.filled")
                             .font(.system(size: 40))
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(Color.accentColor)
                     }
-                    .padding(.bottom, 10)
                     
                     if !capsule.message.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Message to yourself:")
-                                .font(.headline)
-                            
-                            Text(capsule.message)
-                                .padding(8)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(10)
-                        }
+                        Text(capsule.message)
+                            .padding(8)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(10)
                     }
                     
                     if !capsule.items.isEmpty {
                         Text("Capsule Items")
-                            .font(.headline)
-                            .padding(.top)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                         
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 15) {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 15) {
                             ForEach(Array(capsule.items.enumerated()), id: \.element.id) { index, item in
                                 Button {
                                     selectedItemIndex = index
                                 } label: {
                                     CapsuleItemView(item: item)
                                 }
+                                .buttonStyle(.borderless)
                             }
                         }
                     }
-                }
-                .padding()
-            }
-            .navigationTitle("Cap")
-#if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-#endif
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
+                    Spacer()
+                    
                     Button {
                         markAsOpened()
                         dismiss()
                     } label: {
-                        Text("Done")
+                        Label("Done", systemImage: "checkmark")
                     }
+                    .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderless)
                 }
+                .padding()
+#if os(visionOS)
+                .padding()
+#endif
             }
             .sheet(isPresented: .init(
                 get: { selectedItemIndex != nil },

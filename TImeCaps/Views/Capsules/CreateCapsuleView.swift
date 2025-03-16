@@ -7,6 +7,16 @@
 
 import SwiftUI
 
+struct DurationUnit {
+    let title: String
+    let systemImage: String
+
+    init(_ title: String, systemImage: String) {
+        self.title = title
+        self.systemImage = systemImage
+    }
+}
+
 struct CreateCapsuleView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -19,7 +29,22 @@ struct CreateCapsuleView: View {
     @State private var showingAddItemSheet = false
     @State private var items: [CapsuleItem] = []
     
+    let durations: [DurationUnit] = [
+        DurationUnit("Minutes", systemImage: "hourglass"),
+        DurationUnit("Hours", systemImage: "clock"),
+        DurationUnit("Days", systemImage: "calendar.day.timeline.left"),
+        DurationUnit("Months", systemImage: "calendar"),
+        DurationUnit("Years", systemImage: "tree"),
+    ]
+    
     let durationUnits = ["Minutes", "Hours", "Days", "Months", "Years"]
+    let durationIcons = ["hourglass", "clock", "calendar.day.timeline.left", "calendar", "tree"]
+    
+#if os(iOS)
+    let buttonCornerRadius: CGFloat = 12
+#else
+    let buttonCornerRadius: CGFloat = 0
+#endif
     
     var formattedOpenDate: String {
         let formatter = DateFormatter()
@@ -30,72 +55,104 @@ struct CreateCapsuleView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("Details")) {
-                    TextField("Title", text: $title)
-                    TextField("Message to your future self", text: $message, axis: .vertical)
-                        .lineLimit(5)
-                }
+            VStack(alignment: .leading) {
+                detailsSection
+                dateSection
+                itemsSection
+                Spacer()
                 
-                Section(header: Text("Open Date")) {
-                    Picker("Duration Unit", selection: $durationUnit) {
-                        ForEach(durationUnits, id: \.self) {
-                            Text($0)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    
-                    HStack {
-                        Text("Amount")
-                        Slider(value: $durationValue, in: 1...100, step: 1) {
-                            Text("Duration")
-                        } minimumValueLabel: {
-                            Text("1")
-                        } maximumValueLabel: {
-                            Text("100")
-                        }
-                    }
-                    
-                    Text("Will open on: \(formattedOpenDate)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                
-                Section(header: Text("Items")) {
-                    ForEach(items, id: \.id) { item in
-                        HStack {
-                            Image(systemName: iconForType(item.type))
-                            Text(item.title)
-                            Spacer()
-                        }
-                    }
-                    
-                    Button("Add Item") {
-                        showingAddItemSheet = true
-                    }
-                }
-            }
-            .navigationTitle("New Cap")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button("Save") {
+                HStack {
+                    Button(action: {
                         saveTimeCapsule()
+                    }) {
+                        Label("Save", systemImage: "checkmark")
                     }
+                    .keyboardShortcut(.defaultAction)
                     .disabled(title.isEmpty)
-                }
-                
-                ToolbarItem(placement: .automatic) {
-                    Button("Cancel") {
+                    .foregroundStyle(
+                        title.isEmpty ? .secondary : Color.accentColor
+                    )
+                    Spacer()
+                    
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
+                .buttonStyle(.borderless)
             }
+            .buttonStyle(.borderedProminent)
+            .textFieldStyle(.plain)
+            .padding()
+#if os(visionOS)
+            .padding()
+#endif
             .sheet(isPresented: $showingAddItemSheet) {
                 AddItemView(items: $items)
             }
         }
     }
     
+    var detailsSection: some View {
+        Section {
+            TextField("New Cap", text: $title)
+                .font(.title)
+                .onSubmit {
+                    saveTimeCapsule()
+                }
+            TextField("Message to your future self", text: $message, axis: .vertical)
+                .lineLimit(5)
+        }
+    }
+    
+    var dateSection: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Slider(value: $durationValue, in: 1...50, step: 1) {
+                    Text("Duration")
+                } minimumValueLabel: {
+                    Text("1")
+                } maximumValueLabel: {
+                    Text("50")
+                }
+                
+                Picker("", selection: $durationUnit) {
+                    ForEach(durationUnits, id: \.self) { unit in
+                        Text(unit)
+                    }
+                }
+                .cornerRadius(buttonCornerRadius)
+            }
+            
+            Text("Will open on: \(formattedOpenDate)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical)
+    }
+    
+    var itemsSection: some View {
+        VStack(alignment: .leading) {
+            ForEach(items, id: \.id) { item in
+                HStack {
+                    Image(systemName: iconForType(item.type))
+                    Text(item.title)
+                    Spacer()
+                }
+            }
+            
+            Button(action: {
+                showingAddItemSheet = true
+            }) {
+                Label("Add Item", systemImage: "plus")
+                    .padding(4)
+            }
+            .cornerRadius(buttonCornerRadius)
+        }
+        .padding(.vertical)
+    }
+        
     private func calculateOpenDate() -> Date {
         let calendar = Calendar.current
         let now = Date()
@@ -117,6 +174,9 @@ struct CreateCapsuleView: View {
     }
     
     private func saveTimeCapsule() {
+        if title.isEmpty {
+            return
+        }
         let capsule = TimeCapsule(title: title, message: message, openDate: calculateOpenDate())
         capsule.items = items
         
@@ -138,4 +198,8 @@ struct CreateCapsuleView: View {
             return "music.note"
         }
     }
+}
+
+#Preview {
+    CreateCapsuleView()
 }

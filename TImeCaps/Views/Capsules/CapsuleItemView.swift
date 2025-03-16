@@ -11,61 +11,60 @@ struct CapsuleItemView: View {
     let item: CapsuleItem
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             switch item.type {
-            case .photo:
-                if let imageData = item.imageData {
-                    #if os(iOS)
-                    if let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 120)
-                            .cornerRadius(10)
-                            .clipped()
-                    } else {
-                        placeholderImage(systemName: "photo")
-                    }
-                    #elseif os(macOS)
-                    if let nsImage = NSImage(data: imageData) {
-                        Image(nsImage: nsImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 120)
-                            .cornerRadius(10)
-                            .clipped()
-                    } else {
-                        placeholderImage(systemName: "photo")
-                    }
-                    #endif
-                } else {
-                    placeholderImage(systemName: "photo")
-                }
-                
-            case .text:
-                placeholderImage(systemName: "doc.text", color: .accentColor)
-                
-            case .audio:
-                placeholderImage(systemName: "mic", color: .red)
-                
-            case .music:
-                placeholderImage(systemName: "music.note", color: .purple)
+            case .photo: photoView
+            case .text: placeholderImage(systemName: "doc.text", color: .accentColor)
+            case .audio: placeholderImage(systemName: "mic", color: .red)
+            case .music: placeholderImage(systemName: "music.note", color: .purple)
             }
             
             Text(item.title)
                 .font(.caption)
                 .lineLimit(2)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(.leading)
                 .frame(width: 120)
+        }
+    }
+    
+    var photoView: some View {
+        VStack {
+            if let imageData = item.imageData {
+#if os(iOS) || os(visionOS)
+                if let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(minWidth: 120, minHeight: 120)
+                        .cornerRadius(10)
+                        .clipped()
+                } else {
+                    placeholderImage(systemName: "photo")
+                }
+#elseif os(macOS)
+                if let nsImage = NSImage(data: imageData) {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(minWidth: 120, minHeight: 120)
+                        .cornerRadius(10)
+                        .clipped()
+                } else {
+                    placeholderImage(systemName: "photo")
+                }
+#endif
+            } else {
+                placeholderImage(systemName: "photo")
+            }
         }
     }
     
     private func placeholderImage(systemName: String, color: Color = .gray) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 40))
-            .foregroundColor(color)
-            .frame(width: 120, height: 120)
-            .background(Color.secondary)
-            .cornerRadius(10)
+            .foregroundStyle(color)
+            .frame(minWidth: 120, minHeight: 120)
+            .background(.ultraThinMaterial)
+            .cornerRadius(16)
     }
 }
